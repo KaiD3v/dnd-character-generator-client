@@ -3,19 +3,19 @@ import { api } from "../utils/api";
 
 interface CharacterFormBody {
   charClass: {
-    className: string | undefined;
+    className: string;
   };
-  race: string | undefined;
-  gender: string | undefined;
-  level: number | undefined;
+  race: string;
+  gender: string;
+  level: number;
 }
 
 export function CharacterForm() {
   const [formBody, setFormBody] = useState<CharacterFormBody>({
-    charClass: { className: undefined },
-    race: undefined,
-    level: undefined,
-    gender: undefined,
+    charClass: { className: "" },
+    race: "",
+    level: 1,
+    gender: "",
   });
 
   const races = [
@@ -51,33 +51,46 @@ export function CharacterForm() {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const body = await fetch(`${api}/generate-character`, {
+    const safeBody: CharacterFormBody = {
+      race: formBody.race || races[0],
+      gender: formBody.gender || genders[0],
+      level: formBody.level || 1,
+      charClass: {
+        className: formBody.charClass.className || classes[0],
+      },
+    };
+
+    const response = await fetch(`${api}/generate-character`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(formBody),
+      body: JSON.stringify(safeBody),
     });
 
-    const data = await body.json();
+    const data = await response.json();
 
-    console.log(formBody);
-    console.log(data);
+    console.log("Enviado:", safeBody);
+    console.log("Recebido:", data);
   }
 
   return (
     <form onSubmit={handleSubmit}>
+      <label>Race</label>
       <select
         required
         value={formBody.race}
         onChange={(e) => setFormBody({ ...formBody, race: e.target.value })}
       >
+        <option value="">Select Race</option>
         {races.map((race) => (
           <option key={race} value={race}>
             {race}
           </option>
         ))}
       </select>
+
+      <label>Class</label>
       <select
         required
         value={formBody.charClass.className}
@@ -88,32 +101,41 @@ export function CharacterForm() {
           })
         }
       >
+        <option value="">Select Class</option>
         {classes.map((charClass) => (
           <option key={charClass} value={charClass}>
             {charClass}
           </option>
         ))}
       </select>
+
+      <label>Gender</label>
       <select
         required
         value={formBody.gender}
         onChange={(e) => setFormBody({ ...formBody, gender: e.target.value })}
       >
+        <option value="">Select Gender</option>
         {genders.map((gender) => (
           <option key={gender} value={gender}>
             {gender}
           </option>
         ))}
       </select>
+
+      <label>Level</label>
       <input
         required
-        value={formBody.level || "1"}
+        value={formBody.level}
         type="number"
+        min={1}
+        max={20}
         onChange={(e) =>
           setFormBody({ ...formBody, level: Number(e.target.value) })
         }
         placeholder="Character Level"
       />
+
       <button type="submit">Generate</button>
     </form>
   );
