@@ -1,5 +1,6 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { api } from "../utils/api";
+import { useCharacter, type Character } from "../providers/character-provider";
 
 interface CharacterFormBody {
   charClass: {
@@ -22,6 +23,7 @@ export function CharacterForm({ isSend, setIsSend }: CharacterFormProps) {
     level: 1,
     gender: "",
   });
+  const { setCharacter } = useCharacter();
 
   const races = [
     "Human",
@@ -78,6 +80,14 @@ export function CharacterForm({ isSend, setIsSend }: CharacterFormProps) {
     const data = await response.json();
     console.log("Enviado:", safeBody);
     console.log("Recebido:", data);
+    try {
+      setCharacter(data as Character);
+    } catch (e) {
+      // If the form is rendered outside the provider, don't crash the form.
+      // Consumer should wrap the app with CharacterProvider.
+      // eslint-disable-next-line no-console
+      console.warn("CharacterProvider not available:", e);
+    } 
   }
 
   return (
