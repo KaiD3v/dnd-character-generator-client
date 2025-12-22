@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 import { api } from "../utils/api";
 
 interface CharacterFormBody {
@@ -10,7 +10,12 @@ interface CharacterFormBody {
   level: number;
 }
 
-export function CharacterForm() {
+interface CharacterFormProps {
+  isSend: boolean;
+  setIsSend: Dispatch<SetStateAction<boolean>>;
+}
+
+export function CharacterForm({ isSend, setIsSend }: CharacterFormProps) {
   const [formBody, setFormBody] = useState<CharacterFormBody>({
     charClass: { className: "" },
     race: "",
@@ -68,8 +73,9 @@ export function CharacterForm() {
       body: JSON.stringify(safeBody),
     });
 
-    const data = await response.json();
+    if (!isSend) setIsSend(true);
 
+    const data = await response.json();
     console.log("Enviado:", safeBody);
     console.log("Recebido:", data);
   }
