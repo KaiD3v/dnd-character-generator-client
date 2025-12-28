@@ -3,59 +3,89 @@ import type { Character } from "../providers/character-provider";
 
 const styles = StyleSheet.create({
   page: {
-    padding: 24,
+    padding: 28,
     fontSize: 10,
     fontFamily: "Helvetica",
-    backgroundColor: "#f4f4f4",
+    backgroundColor: "#ececec",
   },
+
+  /* HEADER */
   header: {
-    borderBottom: "2px solid #000",
-    marginBottom: 12,
-    paddingBottom: 6,
+    backgroundColor: "#1e293b",
+    color: "#fff",
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 16,
   },
   name: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: "bold",
   },
   subtitle: {
     fontSize: 10,
-    marginTop: 2,
+    marginTop: 4,
+    opacity: 0.9,
   },
+
+  /* GRID */
   grid: {
     flexDirection: "row",
-    gap: 8,
+    gap: 12,
   },
   column: {
-    flexGrow: 1,
+    flex: 1,
   },
+
+  /* SECTIONS */
   section: {
-    border: "1px solid #000",
-    borderRadius: 4,
-    padding: 6,
-    marginBottom: 8,
-    backgroundColor: "#fff",
+    backgroundColor: "#ffffff",
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 10,
   },
   sectionTitle: {
     fontSize: 11,
     fontWeight: "bold",
-    marginBottom: 4,
+    marginBottom: 6,
+    color: "#1e293b",
     textTransform: "uppercase",
   },
-  statRow: {
+
+  /* ATRIBUTOS */
+  statsGrid: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 2,
+    flexWrap: "wrap",
+    gap: 6,
+  },
+  statBox: {
+    width: "48%",
+    backgroundColor: "#f1f5f9",
+    borderRadius: 6,
+    padding: 6,
+    alignItems: "center",
   },
   statName: {
+    fontSize: 9,
+    fontWeight: "bold",
+    color: "#334155",
+  },
+  statValue: {
+    fontSize: 14,
     fontWeight: "bold",
   },
+  statMod: {
+    fontSize: 9,
+    color: "#475569",
+  },
+
   small: {
     fontSize: 9,
   },
   listItem: {
-    marginBottom: 2,
+    marginBottom: 3,
   },
 });
+
 
 type Props = {
   character: Character;
@@ -69,47 +99,52 @@ export function CharacterSheet({ character }: Props) {
         <View style={styles.header}>
           <Text style={styles.name}>{character.name}</Text>
           <Text style={styles.subtitle}>
-            {character.race.name} • {character.class.className} • Nível{" "}
-            {character.level} • {character.alignment}
+            {character.race.name} • {character.class.className} • {`Level ${character.level}`} • {character.alignment}
           </Text>
+
         </View>
 
         <View style={styles.grid}>
-          {/* COLUNA ESQUERDA */}
+          {/* COLUNA ESQUERDA  */}
           <View style={styles.column}>
             {/* ATRIBUTOS */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Atributos</Text>
-              {(
-                Object.entries(character.attributes) as [
-                  keyof Character["attributes"],
-                  number
-                ][]
-              ).map(([key, value]) => {
-                const mod = character.modifiers[key];
-                return (
-                  <View key={key} style={styles.statRow}>
-                    <Text style={styles.statName}>{key.toUpperCase()}</Text>
-                    <Text>
-                      {value} ({mod >= 0 ? "+" : ""}
-                      {mod})
-                    </Text>
-                  </View>
-                );
-              })}
+              <Text style={styles.sectionTitle}>Attributes</Text>
+
+              <View style={styles.statsGrid}>
+                {(
+                  Object.entries(character.attributes) as [
+                    keyof Character["attributes"],
+                    number
+                  ][]
+                ).map(([key, value]) => {
+                  const mod = character.modifiers[key];
+                  return (
+                    <View key={key} style={styles.statBox}>
+                      <Text style={styles.statName}>{key.toUpperCase()}</Text>
+                      <Text style={styles.statValue}>{value}</Text>
+                      <Text style={styles.statMod}>
+                        {mod >= 0 ? "+" : ""}
+                        {mod}
+                      </Text>
+                    </View>
+                  );
+                })}
+              </View>
             </View>
+
 
             {/* COMBATE */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Combate</Text>
-              <Text>Classe de Armadura: {character.ac}</Text>
-              <Text>Pontos de Vida: {character.hp}</Text>
+              <Text style={styles.sectionTitle}>Combat</Text>
+              <Text>CA: {character.ac}</Text>
+              <Text>PV: {character.hp}</Text>
               <Text>Iniciativa: {character.initiative}</Text>
             </View>
 
             {/* EQUIPAMENTO */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Equipamento</Text>
+              <Text style={styles.sectionTitle}>Equipment</Text>
               <Text>Ouro: {character.equipment.gold} gp</Text>
               {character.equipment.items.map((item) => (
                 <Text
@@ -126,7 +161,7 @@ export function CharacterSheet({ character }: Props) {
           <View style={styles.column}>
             {/* IDENTIDADE */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Identidade</Text>
+              <Text style={styles.sectionTitle}>Identity</Text>
               <Text>Gênero: {character.gender}</Text>
               <Text>Idade: {character.age}</Text>
             </View>
@@ -135,7 +170,7 @@ export function CharacterSheet({ character }: Props) {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Background</Text>
               <Text style={styles.small}>
-                <Text style={styles.statName}>Personalidade: </Text>
+                <Text style={styles.statName}>Personality: </Text>
                 {character.background.traits.personality || "-"}
               </Text>
               <Text style={styles.small}>
@@ -154,7 +189,7 @@ export function CharacterSheet({ character }: Props) {
 
             {/* RAÇA */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Raça</Text>
+              <Text style={styles.sectionTitle}>Race</Text>
               {character.race.traits.map((trait: string, i: number) => (
                 <Text key={i} style={styles.small}>
                   • {trait}
